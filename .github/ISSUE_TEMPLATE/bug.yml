@@ -1,0 +1,58 @@
+name: Bug Report
+
+description: 버그 수정 요청
+
+labels:
+  - Bug
+
+body:
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+
+        버그 수정 요청입니다.
+        Jira Task 생성 여부와 Priority를 선택해주세요.
+
+
+  - type: dropdown
+    id: jira-create
+    attributes:
+      label: Jira Task 생성
+      description: Jira Task 자동 생성을 활성화할지 선택합니다.
+      options:
+        - "ON"
+        - "OFF"
+    validations:
+      required: true
+
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Jira Priority
+      description: Jira Task Priority를 선택합니다.
+      options:
+        - Highest
+        - High
+        - Medium
+        - Low
+        - Lowest
+    validations:
+      required: true
+
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 버그 내용
+      description: 발생한 문제를 작성해주세요.
+      placeholder: |
+        예:
+        - 발생 위치
+        - 재현 방법
+        - 예상 결과
+        - 실제 결과
+    validations:
+      required: true
