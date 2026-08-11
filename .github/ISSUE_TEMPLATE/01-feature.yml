@@ -1,19 +1,21 @@
-name: Bug Report
+name: Issue Create
 
-description: 버그 수정 요청
+description: Issue 생성하기
 
 labels:
-  - Bug
+  - Feature
 
 body:
 
   - type: markdown
     attributes:
       value: |
-        ## Bug Report
+        ## Issue Create
 
-        버그 수정 요청입니다.
+        새로운 기능 개발 요청입니다.
+
         Jira Task 생성 여부와 Priority를 선택해주세요.
+        Jira 연동이 필요한 경우 Milestone 지정 및 Work Type에 해당하는 라벨을 정확히 하나 선택해주세요.
 
 
   - type: dropdown
@@ -44,15 +46,14 @@ body:
 
 
   - type: textarea
-    id: bug-description
+    id: description
     attributes:
-      label: 버그 내용
-      description: 발생한 문제를 작성해주세요.
+      label: 작업 내용
+      description: 구현하려는 기능과 필요한 내용을 작성해주세요.
       placeholder: |
         예:
-        - 발생 위치
-        - 재현 방법
-        - 예상 결과
-        - 실제 결과
+        - 기능 설명
+        - 필요한 API
+        - 예상 작업 범위
     validations:
       required: true

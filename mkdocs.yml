@@ -1,0 +1,44 @@
+site_name: Likelion DevOps 7th Team 04
+site_description: Hotel Reservation Web Service Project Documentation
+
+theme:
+  name: material
+  language: ko
+
+  features:
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: Home.md
+
+  - Project:
+      - Project Overview: Project-Overview.md
+
+  - Development:
+      - Development Convention: development/develop_convention.md
+      - Swagger Guide: development/develop-swagger-guide.md
+
+  - Infrastructure:
+      - Infrastructure Overview: Infrastructure.md
+
+  - API:
+      - API Specification: API.md
+
+  - Meeting Notes:
+      - Overview: Meeting-Notes.md
+      - Meetings:
+        - "#49 [MEETING] 테스트-6": Meeting-Notes/49-[MEETING]-테스트-6.md
+        - "#41 [MEETING] 테스트3": Meeting-Notes/41-[MEETING]-테스트3.md
