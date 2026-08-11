@@ -1,5 +1,6 @@
 site_name: Likelion DevOps 7th Team 04
 site_description: Hotel Reservation Web Service Project Documentation
+site_url: https://rbsxo135.github.io/wiki_test/
 
 theme:
   name: material
