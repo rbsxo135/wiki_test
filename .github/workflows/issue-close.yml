@@ -135,10 +135,6 @@ jobs:
               "RETRO MEETING": {
                   "file": "Retro-Meetings.md.md",
                   "title": "Retro Meetings"
-              },
-              "PROJECT MEETING": {
-                  "file": "Project-Meetings.md",
-                  "title": "Project Meetings"
               }
           }
 
@@ -407,6 +403,7 @@ jobs:
           import re
           from pathlib import Path
 
+          issue_number = int(os.environ["ISSUE_NUMBER"])
           issue_title = os.environ["ISSUE_TITLE"].strip()
           category = os.environ["CATEGORY"]
           index_file = os.environ["INDEX_FILE"]
@@ -416,22 +413,36 @@ jobs:
               encoding="utf-8"
           ).strip()
 
+          print(f"Category: {category}")
+          print(f"Index file: {index_file}")
+          print(f"Index title: {index_title}")
+          print(f"Meeting filename: {filename}")
+          print(f"Issue title: {issue_title}")
+
           index_path = Path(index_file)
 
+          # --------------------------------------------------
+          # Category Index가 없다면 새로 생성
+          # --------------------------------------------------
           if index_path.exists():
               content = index_path.read_text(encoding="utf-8")
           else:
-              content = (
-                  f"# {index_title}\n\n"
-                  f"> {category} 회의 목록입니다.\n"
-              )
+              content = f"# {index_title}\n"
 
-          # Issue 제목을 그대로 표시
+          # --------------------------------------------------
+          # 새로운 회의록 링크
+          #
+          # Issue 제목은 그대로 표시
+          # Issue 번호는 표시하지 않음
+          # --------------------------------------------------
           new_link = (
               f"- [{issue_title}]"
               f"(Meeting-Notes/{filename[:-3]})"
           )
 
+          # --------------------------------------------------
+          # 기존 회의록 링크 추출
+          # --------------------------------------------------
           meeting_pattern = re.compile(
               r"^- \[(.*?)\]\(Meeting-Notes/(.*?)\)$",
               re.MULTILINE
@@ -443,9 +454,18 @@ jobs:
               title = match.group(1)
               meetings[title] = match.group(0)
 
+          # --------------------------------------------------
+          # 새로운 회의록 추가
+          # --------------------------------------------------
           meetings[issue_title] = new_link
 
-          meeting_lines = list(meetings.values())
+          # --------------------------------------------------
+          # 최신 회의록을 위쪽에 배치
+          # --------------------------------------------------
+          meeting_lines = [
+              line
+              for line in meetings.values()
+          ]
 
           meetings_section = (
               "## Meetings\n\n"
@@ -453,6 +473,9 @@ jobs:
               + "\n"
           )
 
+          # --------------------------------------------------
+          # 기존 Meetings Section 교체
+          # --------------------------------------------------
           section_pattern = re.compile(
               r"## Meetings\s*\n.*?(?=\n## |\Z)",
               re.DOTALL
@@ -475,7 +498,9 @@ jobs:
               encoding="utf-8"
           )
 
-          print(f"{index_file} updated.")
+          print(f"Updated: {index_path}")
+          print("New link:")
+          print(new_link)
           PY
 
 
