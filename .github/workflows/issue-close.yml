@@ -132,13 +132,9 @@ jobs:
                   "file": "Planning-Meetings.md",
                   "title": "Planning Meetings"
               },
-              "DESIGN MEETING": {
-                  "file": "Design-Meetings.md",
-                  "title": "Design Meetings"
-              },
-              "RETROSPECTIVE": {
-                  "file": "Retrospectives.md",
-                  "title": "Retrospectives"
+              "RETRO MEETING": {
+                  "file": "Retro-Meetings.md.md",
+                  "title": "Retro Meetings"
               },
               "PROJECT MEETING": {
                   "file": "Project-Meetings.md",
@@ -500,9 +496,7 @@ jobs:
             Scrum-Meetings.md \
             Technical-Meetings.md \
             Planning-Meetings.md \
-            Design-Meetings.md \
-            Retrospectives.md \
-            Project-Meetings.md
+            Retro-Meetings.md
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
