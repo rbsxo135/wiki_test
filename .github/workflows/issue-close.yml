@@ -71,14 +71,11 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'meeting')
 
     env:
-      # Issue / GitHub API 접근
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Wiki 접근
       WIKI_PAT: ${{ secrets.WIKI_PAT }}
 
-      # 테스트 Repository에서 실제 메인 Repository Wiki를 대상으로 함
-      REPOSITORY: ${{ github.repository }}
+      # 테스트 Repository에서 실제 Wiki를 대상으로 함
+      REPOSITORY: rbsxo135/wiki_test
 
       ISSUE_NUMBER: ${{ github.event.issue.number }}
       ISSUE_TITLE: ${{ github.event.issue.title }}
@@ -133,15 +130,13 @@ jobs:
                   "title": "Planning Meetings"
               },
               "RETRO MEETING": {
-                  "file": "Retro-Meetings.md.md",
+                  "file": "Retro-Meetings.md",
                   "title": "Retro Meetings"
               }
           }
 
           if category not in category_map:
-              print(
-                  f"::error::지원하지 않는 Meeting Category입니다: {category}"
-              )
+              print(f"::error::지원하지 않는 Meeting Category입니다: {category}")
               print(
                   "지원되는 Category: "
                   + ", ".join(category_map.keys())
@@ -221,10 +216,10 @@ jobs:
 
           filename = f"{slugify(issue_title)}.md"
 
-          meeting_dir = Path("Meeting-Notes")
-          meeting_dir.mkdir(exist_ok=True)
-
-          file_path = meeting_dir / filename
+          # --------------------------------------------------
+          # Wiki 루트에 회의록 생성
+          # --------------------------------------------------
+          file_path = Path(filename)
 
           # --------------------------------------------------
           # Comments 읽기
@@ -315,7 +310,6 @@ jobs:
           import re
           from pathlib import Path
 
-          issue_number = int(os.environ["ISSUE_NUMBER"])
           issue_title = os.environ["ISSUE_TITLE"].strip()
 
           filename = Path("../meeting_filename.txt").read_text(
@@ -329,15 +323,17 @@ jobs:
           else:
               content = "# Meeting Notes\n"
 
-          # Issue 번호는 표시하지 않고 원래 제목 그대로 표시
+          # --------------------------------------------------
+          # Wiki 루트에 있는 회의록으로 직접 연결
+          # --------------------------------------------------
           new_link = (
               f"- [{issue_title}]"
-              f"(Meeting-Notes/{filename[:-3]})"
+              f"({filename[:-3]})"
           )
 
-          # 기존 Meeting 링크 추출
+          # 기존 회의록 링크 추출
           meeting_pattern = re.compile(
-              r"^- \[(.*?)\]\(Meeting-Notes/(.*?)\)$",
+              r"^- \[(.*?)\]\((.*?)\)$",
               re.MULTILINE
           )
 
@@ -346,14 +342,11 @@ jobs:
           for match in meeting_pattern.finditer(content):
               title = match.group(1)
 
-              # 기존 링크에서 Issue 번호를 알 수 없는 구조이므로
-              # 파일명을 기준으로 관리하기 위해 title을 key로 사용
-              meetings[title] = match.group(0)
+              if title.startswith("["):
+                  meetings[title] = match.group(0)
 
           meetings[issue_title] = new_link
 
-          # 제목 기준 중복 제거 후 Issue 번호는 파일명에 없으므로
-          # 새로 추가된 항목을 최신 위치에 배치
           meeting_lines = list(meetings.values())
 
           meetings_section = (
@@ -385,6 +378,7 @@ jobs:
           )
 
           print("Meeting Notes index updated.")
+          print(new_link)
           PY
 
 
@@ -403,7 +397,6 @@ jobs:
           import re
           from pathlib import Path
 
-          issue_number = int(os.environ["ISSUE_NUMBER"])
           issue_title = os.environ["ISSUE_TITLE"].strip()
           category = os.environ["CATEGORY"]
           index_file = os.environ["INDEX_FILE"]
@@ -421,30 +414,22 @@ jobs:
 
           index_path = Path(index_file)
 
-          # --------------------------------------------------
-          # Category Index가 없다면 새로 생성
-          # --------------------------------------------------
           if index_path.exists():
               content = index_path.read_text(encoding="utf-8")
           else:
               content = f"# {index_title}\n"
 
           # --------------------------------------------------
-          # 새로운 회의록 링크
-          #
-          # Issue 제목은 그대로 표시
-          # Issue 번호는 표시하지 않음
+          # Wiki 루트에 있는 회의록으로 직접 연결
           # --------------------------------------------------
           new_link = (
               f"- [{issue_title}]"
-              f"(Meeting-Notes/{filename[:-3]})"
+              f"({filename[:-3]})"
           )
 
-          # --------------------------------------------------
           # 기존 회의록 링크 추출
-          # --------------------------------------------------
           meeting_pattern = re.compile(
-              r"^- \[(.*?)\]\(Meeting-Notes/(.*?)\)$",
+              r"^- \[(.*?)\]\((.*?)\)$",
               re.MULTILINE
           )
 
@@ -452,20 +437,13 @@ jobs:
 
           for match in meeting_pattern.finditer(content):
               title = match.group(1)
-              meetings[title] = match.group(0)
 
-          # --------------------------------------------------
-          # 새로운 회의록 추가
-          # --------------------------------------------------
+              if title.startswith("["):
+                  meetings[title] = match.group(0)
+
           meetings[issue_title] = new_link
 
-          # --------------------------------------------------
-          # 최신 회의록을 위쪽에 배치
-          # --------------------------------------------------
-          meeting_lines = [
-              line
-              for line in meetings.values()
-          ]
+          meeting_lines = list(meetings.values())
 
           meetings_section = (
               "## Meetings\n\n"
@@ -473,9 +451,6 @@ jobs:
               + "\n"
           )
 
-          # --------------------------------------------------
-          # 기존 Meetings Section 교체
-          # --------------------------------------------------
           section_pattern = re.compile(
               r"## Meetings\s*\n.*?(?=\n## |\Z)",
               re.DOTALL
@@ -498,7 +473,7 @@ jobs:
               encoding="utf-8"
           )
 
-          print(f"Updated: {index_path}")
+          print(f"Updated: {index_file}")
           print("New link:")
           print(new_link)
           PY
@@ -516,12 +491,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add \
-            Meeting-Notes/ \
             Meeting-Notes.md \
             Scrum-Meetings.md \
             Technical-Meetings.md \
             Planning-Meetings.md \
-            Retro-Meetings.md
+            Retro-Meetings.md \
+            '*.md'
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
